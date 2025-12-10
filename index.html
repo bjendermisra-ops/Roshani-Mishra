@@ -1,97 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0d47a1">
+    <title>Multi Calc Pro V2</title>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<div style="border: 2px solid #000; padding: 20px; font-family: 'Times New Roman', serif;">
+    <style>
+        :root {
+            /* Light Theme */
+            --primary: #0d47a1;
+            --primary-light: #e3f2fd;
+            --accent: #2979ff;
+            --bg-color: #f0f2f5;
+            --surface: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sec: #666666;
+            --border: #e0e0e0;
+            --success: #00c853;
+            --danger: #d32f2f;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --keypad-bg: #ffffff;
+            --btn-text: #333;
+        }
 
-<center>
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --primary: #64b5f6;
+            --primary-light: #1e2a38;
+            --accent: #42a5f5;
+            --bg-color: #000000;
+            --surface: #121212;
+            --text-main: #ffffff;
+            --text-sec: #b0bec5;
+            --border: #2c2c2c;
+            --success: #69f0ae;
+            --danger: #ef5350;
+            --shadow: 0 4px 12px rgba(0,0,0,0.5);
+            --keypad-bg: #1e1e1e;
+            --btn-text: #eee;
+        }
 
-🕉️ SHREE GANESHAY NAMAH 🕉️
-MARRIAGE BIODATA
-</center>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Poppins', sans-serif;
+        }
 
-<hr>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center; /* Center on large screens */
+            overflow: hidden;
+            user-select: none;
+        }
 
-🔍 BASIC DETAILS
+        /* Responsive Container */
+        .app-container {
+            width: 100%;
+            max-width: 600px; /* Tablet/Desktop limit */
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
 
-Full Name : Roshani Mishra
+        /* --- Header --- */
+        header {
+            background-color: var(--surface);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+        }
 
-Date of Birth : 24th March, 2000
+        header h1 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
 
-Height : 5 ft 0 in
+        /* --- Main Content --- */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            position: relative;
+            padding-bottom: 80px; /* Space for Nav */
+        }
 
-Weight : 55 kg
+        /* Hide scrollbar but allow scrolling */
+        main::-webkit-scrollbar { width: 0px; background: transparent; }
 
-Religion / Caste : Hindu – Brahmin (Mishra)
+        .tab-section {
+            display: none;
+            padding: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-section.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
-Mother Tongue : Hindi
+        /* --- Cards & Inputs --- */
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
 
-Languages Known : English, Hindi, Marathi
+        h2 { font-size: 1rem; margin-bottom: 15px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent); }
 
-Marital Status : Unmarried
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        [data-theme="dark"] .btn { color: #000; }
 
-<hr>
+        /* --- TAB 1: CALC UI --- */
+        .calc-display {
+            text-align: right;
+            margin-bottom: 15px;
+            padding: 10px;
+        }
+        .calc-expr { font-size: 1.2rem; color: var(--text-sec); height: 1.5em; overflow: hidden; }
+        .calc-res { 
+            font-size: 3rem; 
+            font-weight: 600; 
+            color: var(--text-main); 
+            word-wrap: break-word; 
+            line-height: 1.1;
+        }
 
-📍 LOCATION & ROOTS
+        .sci-toggle-btn {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
 
-Current Residence : Hadapsar, Pune, Maharashtra
+        .sci-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-bottom: 5px;
+        }
+        .sci-row.open { max-height: 100px; padding-bottom: 10px; }
 
-Hometown / Native : Prayagraj – Sultanpur, Uttar Pradesh
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
 
-<hr>
+        .key {
+            background: var(--keypad-bg);
+            color: var(--btn-text);
+            font-size: 1.5rem;
+            padding: 18px 0;
+            border-radius: 16px;
+            border: none;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .key:active { background: var(--border); }
+        
+        .key.op { color: var(--accent); font-weight: 600; }
+        .key.eq { background: var(--primary); color: #fff; }
+        [data-theme="dark"] .key.eq { color: #000; }
+        .key.sci { font-size: 1rem; background: var(--bg-color); color: var(--text-sec); }
 
-🎓 EDUCATION & QUALIFICATIONS
+        /* --- TAB 2: CASH --- */
+        .denom-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 90px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .denom-img {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .total-display {
+            background: var(--primary);
+            color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        [data-theme="dark"] .total-display { color: #000; }
 
-M.Sc. (Organic Chemistry) – Completed with distinction
+        /* --- TAB 3: TOOLS --- */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tool-card {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .tool-card i { font-size: 1.5rem; color: var(--accent); margin-bottom: 8px; }
+        .tool-card.active { border-color: var(--primary); background: var(--primary-light); }
 
-B.Sc. (Chemistry) – Completed with strong academic record
+        .chart-box {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            background: conic-gradient(var(--primary) 0deg 0deg, var(--border) 0deg 360deg);
+        }
+        .result-pill {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--bg-color);
+            margin-top: 5px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
 
-<hr>
+        /* --- TAB 4: SETTINGS --- */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
 
-💼 PROFESSIONAL CAREER
+        /* --- Bottom Nav --- */
+        nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: var(--surface);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border);
+            z-index: 20;
+        }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-sec);
+            font-size: 0.75rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 25%;
+        }
+        .nav-btn i { font-size: 1.3rem; margin-bottom: 4px; transition: 0.2s; }
+        .nav-btn.active { color: var(--primary); }
+        .nav-btn.active i { transform: translateY(-3px); }
 
-Current Designation : Teacher
+    </style>
+</head>
+<body>
 
-Organization: Indo British Global School, Pune
+<div class="app-container">
+    <!-- HEADER -->
+    <header>
+        <h1>Multi Calc <i class="fas fa-bolt" style="font-size:0.8em"></i></h1>
+        <i class="fas fa-moon" id="themeIcon" onclick="toggleTheme()" style="cursor:pointer; font-size:1.2rem"></i>
+    </header>
 
-Previous Experience : Former Marketing Manager
+    <!-- MAIN -->
+    <main>
+        <!-- TAB 1: CALCULATOR -->
+        <section id="tab-calc" class="tab-section active">
+            <div class="card" style="border:none; box-shadow:none; background:transparent;">
+                <div class="calc-display">
+                    <div class="calc-expr" id="calcExpr"></div>
+                    <div class="calc-res" id="calcRes">0</div>
+                </div>
 
-Organization: DDOC IT Company, Magarpatta
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <button class="sci-toggle-btn" onclick="toggleSci()">
+                        <i class="fas fa-flask"></i> Scientific
+                    </button>
+                    <i class="fas fa-history" onclick="toggleHistory()" style="color:var(--text-sec); cursor:pointer;"></i>
+                </div>
 
-<hr>
+                <div class="sci-row" id="sciRow">
+                    <button class="key sci" onclick="insert('Math.sin(')">sin</button>
+                    <button class="key sci" onclick="insert('Math.cos(')">cos</button>
+                    <button class="key sci" onclick="insert('Math.tan(')">tan</button>
+                    <button class="key sci" onclick="insert('Math.log10(')">log</button>
+                    <button class="key sci" onclick="insert('Math.sqrt(')">√</button>
+                    <button class="key sci" onclick="insert('**')">^</button>
+                    <button class="key sci" onclick="insert('(')">(</button>
+                    <button class="key sci" onclick="insert(')')">)</button>
+                </div>
 
-🏡 FAMILY BACKGROUND
+                <div class="keypad">
+                    <button class="key op" onclick="clearAll()" style="color:var(--danger)">AC</button>
+                    <button class="key op" onclick="backspace()"><i class="fas fa-backspace"></i></button>
+                    <button class="key op" onclick="insert('%')">%</button>
+                    <button class="key op" onclick="insert('/')">÷</button>
+                    
+                    <button class="key" onclick="insert('7')">7</button>
+                    <button class="key" onclick="insert('8')">8</button>
+                    <button class="key" onclick="insert('9')">9</button>
+                    <button class="key op" onclick="insert('*')">×</button>
+                    
+                    <button class="key" onclick="insert('4')">4</button>
+                    <button class="key" onclick="insert('5')">5</button>
+                    <button class="key" onclick="insert('6')">6</button>
+                    <button class="key op" onclick="insert('-')">−</button>
+                    
+                    <button class="key" onclick="insert('1')">1</button>
+                    <button class="key" onclick="insert('2')">2</button>
+                    <button class="key" onclick="insert('3')">3</button>
+                    <button class="key op" onclick="insert('+')">+</button>
+                    
+                    <button class="key" onclick="insert('00')">00</button>
+                    <button class="key" onclick="insert('0')">0</button>
+                    <button class="key" onclick="insert('.')">.</button>
+                    <button class="key eq" onclick="calcResult()">=</button>
+                </div>
+                
+                <!-- Simple History Modal Overlay Logic could go here, simplified to console/toast for now -->
+                <div id="histPanel" style="display:none; margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+                    <small style="color:var(--text-sec)">Last Result Copied!</small>
+                </div>
+            </div>
+        </section>
 
-Grandfather : Shri Gherauram Mishra
+        <!-- TAB 2: CASH TALLY -->
+        <section id="tab-cash" class="tab-section">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px">
+                    <h2><i class="fas fa-money-bill-wave"></i> Cash Tally</h2>
+                    <button onclick="resetCash()" style="background:transparent; color:var(--danger); border:none; font-weight:600;">Reset</button>
+                </div>
+                
+                <div id="cashContainer"></div> <!-- JS Injected -->
 
-Father : Shri Bijendra Prasad Mishra
+                <div class="total-display">
+                    <div style="font-size:0.8rem; opacity:0.8;">GRAND TOTAL</div>
+                    <div style="font-size:2rem; font-weight:700;" id="cashGrandTotal">₹0</div>
+                </div>
 
-(Independent Construction & Civil Works Professional)
+                <button class="btn" style="background:#25D366; margin-top:15px;" onclick="shareCash()">
+                    <i class="fab fa-whatsapp"></i> Share on WhatsApp
+                </button>
+            </div>
+        </section>
 
-Mother : Smt. Sangita Mishra
+        <!-- TAB 3: TOOLS -->
+        <section id="tab-tools" class="tab-section">
+            <!-- Tool Switcher -->
+            <div class="tool-grid">
+                <div class="tool-card active" onclick="showTool('emi', this)">
+                    <i class="fas fa-home"></i><br>EMI
+                </div>
+                <div class="tool-card" onclick="showTool('sip', this)">
+                    <i class="fas fa-chart-line"></i><br>SIP
+                </div>
+                <div class="tool-card" onclick="showTool('fd', this)">
+                    <i class="fas fa-piggy-bank"></i><br>FD
+                </div>
+                <div class="tool-card" onclick="showTool('age', this)">
+                    <i class="fas fa-user-clock"></i><br>Age
+                </div>
+            </div>
 
-(Homemaker & Religious)
+            <!-- EMI CALCULATOR -->
+            <div id="tool-emi" class="tool-panel">
+                <div class="card">
+                    <h2>EMI Loan Calculator</h2>
+                    <div class="chart-box" id="emiChart"></div>
+                    
+                    <label>Loan Amount (₹)</label>
+                    <input type="number" id="emi-p" value="500000" oninput="calcEMI()">
+                    
+                    <div style="display:flex; gap:10px">
+                        <div style="flex:1">
+                            <label>Rate (%)</label>
+                            <input type="number" id="emi-r" value="10" oninput="calcEMI()">
+                        </div>
+                        <div style="flex:1">
+                            <label>Years</label>
+                            <input type="number" id="emi-n" value="5" oninput="calcEMI()">
+                        </div>
+                    </div>
+                    
+                    <div class="result-pill"><span>Monthly EMI:</span> <b id="out-emi">₹0</b></div>
+                    <div class="result-pill"><span>Total Interest:</span> <b id="out-int" style="color:var(--danger)">₹0</b></div>
+                </div>
+            </div>
 
-Brother : Mr. Santosh Mishra (Younger Sibling)
+            <!-- SIP CALCULATOR -->
+            <div id="tool-sip" class="tool-panel" style="display:none">
+                <div class="card">
+                    <h2>SIP Wealth Calculator</h2>
+                    <label>Monthly Investment (₹)</label>
+                    <input type="number" id="sip-p" value="5000" oninput="calcSIP()">
+                    
+                    <div style="display:flex; gap:10px">
+                        <div style="flex:1">
+                            <label>Return Rate (%)</label>
+                            <input type="number" id="sip-r" value="12" oninput="calcSIP()">
+                        </div>
+                        <div style="flex:1">
+                            <label>Years</label>
+                            <input type="number" id="sip-n" value="10" oninput="calcSIP()">
+                        </div>
+                    </div>
 
-<hr>
+                    <div class="result-pill"><span>Invested:</span> <b id="out-sip-inv">₹0</b></div>
+                    <div class="result-pill"><span>Wealth Gain:</span> <b id="out-sip-gain" style="color:var(--success)">₹0</b></div>
+                    <div class="total-display" style="padding:10px; margin-top:10px">
+                        <small>Maturity Value</small><br>
+                        <span id="out-sip-total">₹0</span>
+                    </div>
+                </div>
+            </div>
 
-🌟 LIFESTYLE & PERSONALITY
+            <!-- FD CALCULATOR -->
+            <div id="tool-fd" class="tool-panel" style="display:none">
+                <div class="card">
+                    <h2>Fixed Deposit (FD)</h2>
+                    <label>Deposit Amount (₹)</label>
+                    <input type="number" id="fd-p" value="100000" oninput="calcFD()">
+                    
+                    <div style="display:flex; gap:10px">
+                        <div style="flex:1">
+                            <label>Rate (%)</label>
+                            <input type="number" id="fd-r" value="6.5" oninput="calcFD()">
+                        </div>
+                        <div style="flex:1">
+                            <label>Months</label>
+                            <input type="number" id="fd-t" value="12" oninput="calcFD()">
+                        </div>
+                    </div>
+                    <div class="result-pill"><span>Maturity Amount:</span> <b id="out-fd-total" style="color:var(--primary)">₹0</b></div>
+                </div>
+            </div>
 
-Dietary Preference : Pure Vegetarian
+            <!-- AGE CALCULATOR -->
+            <div id="tool-age" class="tool-panel" style="display:none">
+                <div class="card">
+                    <h2>Age Calculator</h2>
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob-input">
+                    <button class="btn" onclick="calcAge()">Calculate Age</button>
+                    
+                    <div id="age-result" style="margin-top:15px; text-align:center; font-size:1.2rem; font-weight:600;"></div>
+                </div>
+            </div>
+        </section>
 
-Hobbies : Traveling & Exploring new places, Listening to devotional music, Reading, and Self-improvement.
+        <!-- TAB 4: SETTINGS -->
+        <section id="tab-settings" class="tab-section">
+            <div class="card">
+                <h2>Settings</h2>
+                <div class="setting-row">
+                    <span>Dark Mode</span>
+                    <i class="fas fa-toggle-on" id="setThemeToggle" style="color:var(--primary); font-size:1.5rem" onclick="toggleTheme()"></i>
+                </div>
+                <div class="setting-row" onclick="wipeData()">
+                    <span>Clear All Data</span>
+                    <span style="color:var(--danger)">Clear</span>
+                </div>
+                <div style="margin-top:20px; text-align:center; color:var(--text-sec); font-size:0.8rem">
+                    Multi Calc Pro v2.0<br>Made for Bankers & Students
+                </div>
+            </div>
+        </section>
+    </main>
 
-Personality : I am a simple, well-cultured, and family-oriented person with a modern outlook on career and a traditional approach towards relationships. I believe in maintaining a healthy work-life balance and respecting family values.
-
-<hr>
-
-📞 CONTACT DETAILS
-
-Mobile Number : +91 - 95528 65929
-
-Email ID : eshamishra.vivo@gmail.com
-
-<center>
-<br>
-***"Looking for a suitable match from a cultured and educated family."***
-</center>
-
+    <!-- NAVIGATION -->
+    <nav>
+        <button class="nav-btn active" onclick="nav('tab-calc', this)">
+            <i class="fas fa-calculator"></i> Calc
+        </button>
+        <button class="nav-btn" onclick="nav('tab-cash', this)">
+            <i class="fas fa-rupee-sign"></i> Tally
+        </button>
+        <button class="nav-btn" onclick="nav('tab-tools', this)">
+            <i class="fas fa-shapes"></i> Tools
+        </button>
+        <button class="nav-btn" onclick="nav('tab-settings', this)">
+            <i class="fas fa-cog"></i> Set
+        </button>
+    </nav>
 </div>
+
+<script>
+    // --- APP STATE & INIT ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initCash();
+        calcEMI(); // Init default tool
+        
+        // Theme Check
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    });
+
+    // --- NAVIGATION ---
+    function nav(tabId, btn) {
+        document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        if(isDark) {
+            document.body.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('themeIcon').classList.replace('fa-sun', 'fa-moon');
+        } else {
+            document.body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    }
+
+    // --- CALCULATOR ENGINE ---
+    let expression = '';
+
+    function insert(char) {
+        expression += char;
+        updateScreen();
+    }
+
+    function clearAll() {
+        expression = '';
+        document.getElementById('calcRes').innerText = '0';
+        updateScreen();
+    }
+
+    function backspace() {
+        expression = expression.slice(0, -1);
+        updateScreen();
+    }
+
+    function updateScreen() {
+        // Show expression but replace * with x for visuals
+        document.getElementById('calcExpr').innerText = expression.replace(/\*/g, '×').replace(/\//g, '÷');
+        
+        // Live Calc Preview (Silent Error)
+        try {
+            if (expression && !"+-*/%(".includes(expression.slice(-1))) {
+                const res = eval(expression);
+                // Don't show result if it's the same as expression (single number)
+                if(res.toString() !== expression) {
+                    document.getElementById('calcRes').innerText = formatNum(res);
+                }
+            }
+        } catch (e) {
+            // Do nothing on incomplete expression
+        }
+    }
+
+    function calcResult() {
+        try {
+            const res = eval(expression);
+            document.getElementById('calcRes').innerText = formatNum(res);
+            document.getElementById('calcExpr').innerText = expression + ' =';
+            expression = res.toString();
+        } catch (e) {
+            document.getElementById('calcRes').innerText = "Error";
+            expression = '';
+        }
+    }
+
+    function formatNum(num) {
+        // Limit decimals to 4
+        return Math.round(num * 10000) / 10000;
+    }
+
+    function toggleSci() {
+        document.getElementById('sciRow').classList.toggle('open');
+    }
+    
+    function toggleHistory() {
+        // Quick feature: Copy last result
+        const val = document.getElementById('calcRes').innerText;
+        navigator.clipboard.writeText(val);
+        const p = document.getElementById('histPanel');
+        p.style.display = 'block';
+        setTimeout(() => p.style.display = 'none', 2000);
+    }
+
+    // --- CASH TALLY ---
+    const notes = [500, 200, 100, 50, 20, 10, 5, 2, 1];
+    
+    function initCash() {
+        const div = document.getElementById('cashContainer');
+        let html = '';
+        notes.forEach(n => {
+            html += `
+            <div class="denom-row">
+                <div class="denom-img">₹${n}</div>
+                <input type="number" id="c-${n}" placeholder="0" oninput="calcCash()" onfocus="this.select()">
+                <div style="text-align:right; font-weight:600" id="t-${n}">0</div>
+            </div>`;
+        });
+        div.innerHTML = html;
+        // Load Data
+        const saved = JSON.parse(localStorage.getItem('cashData') || '{}');
+        for(let n in saved) {
+            if(document.getElementById(`c-${n}`)) document.getElementById(`c-${n}`).value = saved[n];
+        }
+        calcCash();
+    }
+
+    function calcCash() {
+        let gt = 0;
+        let saveObj = {};
+        notes.forEach(n => {
+            const el = document.getElementById(`c-${n}`);
+            const val = parseInt(el.value) || 0;
+            const sub = val * n;
+            document.getElementById(`t-${n}`).innerText = sub;
+            gt += sub;
+            if(val > 0) saveObj[n] = val;
+        });
+        document.getElementById('cashGrandTotal').innerText = '₹' + gt.toLocaleString('en-IN');
+        localStorage.setItem('cashData', JSON.stringify(saveObj));
+    }
+
+    function resetCash() {
+        notes.forEach(n => document.getElementById(`c-${n}`).value = '');
+        calcCash();
+    }
+
+    function shareCash() {
+        let text = "*Cash Tally*\n";
+        let gt = 0;
+        notes.forEach(n => {
+            const val = parseInt(document.getElementById(`c-${n}`).value) || 0;
+            if(val > 0) {
+                text += `₹${n} x ${val} = ${n*val}\n`;
+                gt += n*val;
+            }
+        });
+        text += `\n*Total: ₹${gt.toLocaleString('en-IN')}*`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    }
+
+    // --- TOOLS MANAGER ---
+    function showTool(id, el) {
+        document.querySelectorAll('.tool-panel').forEach(p => p.style.display = 'none');
+        document.getElementById('tool-' + id).style.display = 'block';
+        document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        
+        // Trigger calc for that tool
+        if(id === 'emi') calcEMI();
+        if(id === 'sip') calcSIP();
+        if(id === 'fd') calcFD();
+    }
+
+    // --- FINANCIAL MATH ---
+    function calcEMI() {
+        const P = parseFloat(document.getElementById('emi-p').value) || 0;
+        const R = parseFloat(document.getElementById('emi-r').value) || 0;
+        const N = parseFloat(document.getElementById('emi-n').value) || 0;
+        
+        const r = R / 12 / 100;
+        const n = N * 12;
+        
+        let emi = 0;
+        if(P > 0 && R > 0 && N > 0) {
+            emi = P * r * (Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+        }
+        
+        const totalPay = emi * n;
+        const totalInt = totalPay - P;
+        
+        document.getElementById('out-emi').innerText = '₹' + Math.round(emi).toLocaleString('en-IN');
+        document.getElementById('out-int').innerText = '₹' + Math.round(totalInt).toLocaleString('en-IN');
+
+        // Pie Chart Update
+        if(totalPay > 0) {
+            const pPct = (P / totalPay) * 100;
+            const style = getComputedStyle(document.body);
+            const c1 = style.getPropertyValue('--primary').trim();
+            const c2 = style.getPropertyValue('--border').trim();
+            document.getElementById('emiChart').style.background = `conic-gradient(${c1} 0% ${pPct}%, ${c2} ${pPct}% 100%)`;
+        }
+    }
+
+    function calcSIP() {
+        const P = parseFloat(document.getElementById('sip-p').value) || 0;
+        const R = parseFloat(document.getElementById('sip-r').value) || 0;
+        const N = parseFloat(document.getElementById('sip-n').value) || 0;
+
+        const i = R / 100 / 12;
+        const months = N * 12;
+        
+        // SIP Formula
+        let M = 0;
+        if(P>0 && R>0 && N>0) {
+            M = P * ((Math.pow(1 + i, months) - 1) / i) * (1 + i);
+        }
+        
+        const invested = P * months;
+        const gain = M - invested;
+
+        document.getElementById('out-sip-inv').innerText = '₹' + Math.round(invested).toLocaleString('en-IN');
+        document.getElementById('out-sip-gain').innerText = '₹' + Math.round(gain).toLocaleString('en-IN');
+        document.getElementById('out-sip-total').innerText = '₹' + Math.round(M).toLocaleString('en-IN');
+    }
+
+    function calcFD() {
+        const P = parseFloat(document.getElementById('fd-p').value) || 0;
+        const R = parseFloat(document.getElementById('fd-r').value) || 0;
+        const T = parseFloat(document.getElementById('fd-t').value) || 0; // Months
+        
+        // Simple Interest for simplicity in generic tools, or Quarterly compound
+        // Using Simple: A = P(1 + rt)
+        // Using Compound (Quarterly): A = P(1 + r/4)^(4t)
+        const timeYears = T / 12;
+        const amt = P * Math.pow((1 + (R/100)/4), 4 * timeYears);
+        
+        document.getElementById('out-fd-total').innerText = '₹' + Math.round(amt).toLocaleString('en-IN');
+    }
+
+    function calcAge() {
+        const dobVal = document.getElementById('dob-input').value;
+        if(!dobVal) return;
+        
+        const dob = new Date(dobVal);
+        const now = new Date();
+        
+        let years = now.getFullYear() - dob.getFullYear();
+        let months = now.getMonth() - dob.getMonth();
+        let days = now.getDate() - dob.getDate();
+        
+        if (days < 0) {
+            months--;
+            days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        
+        document.getElementById('age-result').innerText = `${years} Yrs, ${months} Mths, ${days} Days`;
+    }
+
+    function wipeData() {
+        if(confirm('Reset Everything?')) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
